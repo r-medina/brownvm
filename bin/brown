@@ -1,0 +1,62 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_HOME=$( cd "$( dirname "$0" )" && pwd )
+
+cd "${SCRIPT_HOME}"/..
+
+function init {
+    [[ $# -eq 0 ]] && echo "usage: init USERNAME" && return 1;
+
+    uname=$1
+    echo $1 > .uname
+
+    mkdir -p home/${uname}
+    mkdir -p course
+}
+
+function mount_files {
+    [[ -a .uname ]] && uname=$(cat .uname)
+
+    [[ -z ${uname} ]] && echo "run init USERNAME" && return 1;
+
+
+    sshfs ${uname}@brown:/gpfs/main/home/${uname} home/${uname}
+    sshfs ${uname}@brown:/gpfs/main/course        course
+}
+
+function shutdown {
+    [[ -a .uname ]] && uname=$(cat .uname)
+
+    [[ -z ${uname} ]] && echo "run init USERNAME" && return 1;
+
+    set +e
+    umount home/${uname}
+    umount course
+    vagrant halt
+    set -e
+}
+
+case "$1" in
+    ssh)
+        vagrant ssh
+        ;;
+    up)
+        mount_files ${@:2}
+        vagrant up
+        ;;
+    init)
+        init ${@:2}
+        vagrant provision
+        ;;
+    shutdown)
+        shutdown
+        ;;
+    *)
+        echo "usage: $0 {init|ssh|up|shutdown}"
+        RETVAL=1
+        ;;
+esac
+
+cd - > /dev/null
