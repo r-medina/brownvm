@@ -6,7 +6,7 @@ Vagrant::Config.run do |config|
   config.vm.box = BOX_NAME
   config.vm.box_url = BOX_URI
 
-  config.vm.provision "file", source: "init.sh", destination: "init.sh"
+  config.vm.provision "shell", path: "init.sh", privileged: false
   
   config.vm.forward_port 8080, 8080
 end

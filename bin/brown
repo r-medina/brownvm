@@ -11,9 +11,6 @@ function init {
 
     uname=$1
     echo $1 > .uname
-
-    mkdir -p home/${uname}
-    mkdir -p course
 }
 
 function mount_files {
@@ -22,8 +19,11 @@ function mount_files {
     [[ -z ${uname} ]] && echo "run init USERNAME" && return 1;
 
 
+    mkdir -p home/${uname}
     sshfs ${uname}@brown:/gpfs/main/home/${uname} home/${uname}
-    sshfs ${uname}@brown:/gpfs/main/course        course
+
+    mkdir -p course
+    sshfs ${uname}@brown:/gpfs/main/course course
 }
 
 function shutdown {
@@ -33,7 +33,9 @@ function shutdown {
 
     set +e
     umount home/${uname}
+    rm -r home
     umount course
+    rm -r course
     vagrant halt
     set -e
 }
@@ -48,7 +50,6 @@ case "$1" in
         ;;
     init)
         init ${@:2}
-        vagrant provision
         ;;
     shutdown)
         shutdown
