@@ -10,6 +10,9 @@
   operating system as brown's servers, but now you have the liberty to install whatever
   you want.
 
+most things in this document assume you're running os x, but there is also information on
+linux.
+
 ### Why?
 
 total freedom.
@@ -19,53 +22,47 @@ total freedom.
 2. target linux: if you want to compile your code, you can use the same great linux tools
    on department machines.
 
-## Running/Interface
+## Usage
+
+after [installing](#installation), instantly mount your files:
+![start](http://i.imgur.com/gTtx5fN.png)
+
+and work locally, see changes reflected on server:
+![emacs](http://i.imgur.com/fDAqgVL.png)
+
+### Interface
 
 `brownvm`'s interface is done entirely through `make`. here are the targets:
 
-- `start` - mounts the brown files and starts the vm
-- `stop` - unmounts the brown files and stops the vm
-- `install`- os x only: installs everything (if you have `brew`)
-- `init` - initializes the `.uname` file that tracks your username
-- `mount` - mounts the brown files
-- `umount` - unmounts the brown files
-- `start_vm` - starts vm
-- `stop_vm` - stops vm
-- `ssh` - ssh into the vm
-- `clean` - shuts down the vm, unmounts the brown files, and removes extra directories
+- `start`       - mounts the brown files and starts the vm (only mounts if you're on linux)
+- `stop`        - unmounts the brown files and stops the vm (only unmounts if you're on linux)
+- `install`     - installs everything (you need `brew` if on os x)
+- `install_fs`  - installs everything required to run sshfs (you need `brew` if on os x)
+- `init`        - initializes the `.uname` file that tracks your username
+- `mount`       - mounts the brown files
+- `umount`      - unmounts the brown files
+- `start_vm`    - starts vm (not available on linux)
+- `stop_vm`     - stops vm (not available on linux)
+- `ssh`         - ssh into the vm (not available on linux)
+- `clean`       - unmounts the brown files, and removes extra directories
+- `clean_extra` - deletes `.uname`
 
-### Workflow
+the more likely use-case is that you just want the sshfs stuff. when this is the case,
+only worry about `mount` and `unmount`.
 
-![start](http://i.imgur.com/gTtx5fN.png)
-intantly mount your files.
-
-![emacs](http://i.imgur.com/fDAqgVL.png)
-work locally, see changes reflected on server.
+### Workflow Example
 
 after `make install`, you run `make mount`: your home directory is now mounted in this one
 at `./home/USERNAME`. now, you work on your homeowrk using your favorite text editor while
-dragging and dropping stuff around. Once you've finished, you want to compile your code,
+dragging and dropping stuff around. once you've finished, you want to compile your code,
 so you run `make start_vm ssh`. you install your favorite `clang` tools with `sudo apt-get
-install -y llvm clang libblocksruntime-dev` then you compile your code and run it, but
+install -y llvm clang libblocksruntime-dev`; then you compile your code and run it, but
 that was just for fun. now you have to do some web apps hw, but the department's version
 of nodejs doesn't really work. instead of running the code on the vm, however, you just
 run it locally since your computer already has the latest and greatest version. finally,
-you do an `ssh brown` and run the handin command for your class.
+you do an `ssh brown` and run the handin command for your assignment.
 
 ## Installation
-
-first thing you have to do is:
-
-    git clone https://github.com/r-medina/brownvm.git && cd brownvm
-
-to get this code and move into that directory.
-
-### Dependancies
-
-- [osxfuse](https://osxfuse.github.io/) 
-- [sshfs](http://fuse.sourceforge.net/sshfs.html)
-- [virtualbox](https://www.virtualbox.org/)
-- [vagrant](https://www.vagrantup.com/)
 
 ### Requirements
 
@@ -79,12 +76,50 @@ Host brown
 
 line to your `~/.ssh/config` file (on your local machine).
 
-### OS X Installation
+#### OS X
 
-provided you have [`brew`](http://brew.sh), you can run:
+you need to have [`brew`](http://brew.sh) installed.
+
+### Installing
+
+first thing you have to do is:
+
+```sh
+git clone https://github.com/r-medina/brownvm.git && cd brownvm
+```
+
+to get this code and move into that directory. now you can run
 
 ```sh
 make install
 ```
 
-to get all the dependancies (they're really big).
+#### OS X
+
+you now have all the dependancies for running sshfs and vagrant. if, however, you wanted a
+more light-weight installation without the vm, just do
+
+```sh
+make install_fs
+```
+
+and then be sure to only use the `mount` and `umount` targets to `make` (instead of
+`start` and `stop`).
+
+#### Linux
+
+installing will only get sshfs (since you don't need a linux vm). the `start` and `stop`
+`make` targets only mount and dismount the brown filesystems.
+
+
+### Dependancies
+
+- [sshfs](http://fuse.sourceforge.net/sshfs.html)
+
+#### OS X
+
+- [osxfuse](https://osxfuse.github.io/) 
+- [virtualbox](https://www.virtualbox.org/)
+- [vagrant](https://www.vagrantup.com/)
+
+## FAQ

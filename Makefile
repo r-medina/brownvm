@@ -1,32 +1,74 @@
-BIN   = ./bin/brown
+BIN = ./bin/brown
 SHELL = /bin/bash
+OS = $(shell uname -s)
 
-CASKDEPS  = osxfuse virtualbox vagrant
-OTHERDEPS = sshfs
-DEPS     = $(CASKDEPS) $(OTHERDEPS)
+# shared dependancies
+ALLDEPS = sshfs
+FSDEPS = $(ALLDEPS)
+# what will eventually get installed
+DEPS = $(ALLDEPS)
+
+# starting command
+ALLSTRT = mount
+STRT = $(ALLSTRT)
+# ending command
+ALLSTP = umount
+STP = $(ALLSTP)
+
+# OS X
+
+ifeq ($(OS),Darwin)
+FSDEPS += osxfuse
+CASKDEPS = osxfuse virtualbox vagrant
+# order matters
+DEPS := $(CASKDEPS) $(DEPS)
+# package manager
+PM = brew
+# virtual machine
+VM = vagrant
+STRT += start_vm
+STP := stop_vm $(STP)
+
+# Linux
+
+else ifeq ($(OS),Linux)
+PM = sudo apt-get
+
+# other
+
+else
+PM = echo manually
+endif
 
 SSHDIRS = home course
-VM      = vagrant
 
 my_info = $(info ----> MAKE $(1))
 
-.PHONY: start stop install init mount umount start_vm stop_vm ssh clean extra_clean
+.PHONY: start stop \
+		install install_fs init \
+		mount umount \
+ifeq ($(OS),Darwin)
+		start_vm stop_vm ssh \
+endif
+		clean clean_extra
 
-start: mount start_vm
-stop: stop_vm umount
+start: $(STRT)
+stop: $(STP)
 
 install: $(DEPS)
+install_fs: $(FSDEPS)
 
 init: .uname
 
-mount: .uname $(SSHDIRS)
+mount: .uname
 	$(call my_info,mounting $(SSHDIRS)...)
 	@$(BIN) mount
 
-umount: init
+umount: .uname
 	$(call my_info,unmounting $(SSHDIRS)...)
 	@$(BIN) umount
 
+ifeq ($(OS),Darwin)
 start_vm:
 	$(call my_info,starting vm...)
 	@$(VM) up
@@ -38,33 +80,26 @@ stop_vm:
 ssh:
 	$(call my_info,ssh-ing into vm...)
 	@$(VM) ssh
+endif
 
 .uname:
 	$(call my_info,initializing...)
 	@$(BIN) init $(shell read -p "brown login: "; echo $$REPLY)
 
+ifdef CASKDEPS
 $(CASKDEPS):
-	$(call my_info,installing $@)
-ifeq ($(shell uname -s),Darwin)
-	@brew cask install Caskroom/cask/$@
-else
-	@echo "install $@ manually"
+	$(call my_info,installing $@...)
+	@$(PM) cask install Caskroom/cask/$@
 endif
 
-$(OTHERDEPS):
-	$(call my_info,installing $@)
-ifeq ($(shell uname -s),Darwin)
-	@brew install $@
-else
-	@echo "install $@ manually"
-endif
+$(ALLDEPS):
+	$(call my_info,installing $@...)
+	@$(PM) install $@
 
-$(SSHDIRS):
-	@mkdir -p $@
-
-clean: stop
-	$(call my_info, deleting .uname $(SSHDIRS)...)
+clean:
+	$(call my_info, deleting $(SSHDIRS)...)
 	@rm -rf $(SSHDIRS)
 
-extra_clean: clean
+clean_extra: clean
+	$(call my_info, deleting .uname...)
 	@rm -f .uname

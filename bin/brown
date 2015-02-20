@@ -7,12 +7,15 @@ SCRIPT_HOME=$( cd "$( dirname "$0" )" && pwd )
 cd "${SCRIPT_HOME}"/..
 
 function get_uname {
-    [[ -a .uname ]] && uname=$(cat .uname)
+    [[ -a .uname ]] && \
+        uname=$(cat .uname)
     echo ${uname}
 }
 
 function init {
-    [[ $# -eq 0 ]] && echo "usage: $0 init USERNAME" && return 1;
+    [[ $# -eq 0 ]] && \
+        echo "Usage: $0 init USERNAME" \
+        && return 1;
 
     uname=$1
     echo $1 > .uname
@@ -20,7 +23,9 @@ function init {
 
 function mount_files {
     uname=$(get_uname)
-    [[ -z ${uname} ]] && echo "run: $0 init USERNAME" && return 1;
+    [[ -z ${uname} ]] && \
+        echo "Run: $0 init USERNAME" && \
+        return 1;
 
     mkdir -p home/${uname}
     sshfs ${uname}@brown:/gpfs/main/home/${uname} home/${uname}
@@ -31,12 +36,24 @@ function mount_files {
 
 function umount_files {
     uname=$(get_uname)
-    [[ -z ${uname} ]] && echo "run: $0 init USERNAME" && return 1;
+    [[ -z ${uname} ]] && \
+        echo "run: $0 init USERNAME" && \
+        return 1;
 
     set +e
-    umount home/${uname} # && rm -r home
-    umount course # && rm -r course
+    umount home/${uname}
+    umount course
     set -e
+}
+
+function usage {
+    printf "Usage: $0 COMMAND [arg]\n\n"
+
+    printf "Commands:\n"
+    printf     "\tinit\tInitializes the '.uname' file that tracks your username.\n"
+    printf     "\tmount\tMounts the Brown files.\n"
+    printf     "\tumount\tUnmounts the Brown files.\n"
+    printf     "\thelp\tDisplay usage information.\n"
 }
 
 case "$1" in
@@ -49,8 +66,15 @@ case "$1" in
     umount)
         umount_files ${@:2}
         ;;
+    help)
+        usage
+        ;;
     *)
-        echo "usage: $0 {}"
+        [[ $1 ]] && \
+            printf "Unknown command '$1'.\n\n"
+
+        usage
+
         RETVAL=1
         ;;
 esac
