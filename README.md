@@ -1,56 +1,90 @@
 # brownvm
 
 `brownvm` enables you to work on your files on brown's servers in totally new ways.
+
 - the `/home/USERNAME` and `/course` directories on brown's servers appear to be on your
-  computer. that is, on your local machine, you now have `./home/USERNAME` and `./course`
-  and you can treat those files as any local files.
-- you also have a linux virtual machine with those files in the same place they would be
-  on brown computers. essentially you have a machine with the same operating system and
-  architecture as brown's servers that you can work on (just like you would normally, via
-  ssh)
+  computer. that is, you get `./home/USERNAME` and `./course` on your local machine and
+  you can treat them as you would any local file.
+- you also have a linux server with the `/course` and home directories mounted at the same
+  place as they are on brown's servers. essentially you have a machine with the same
+  operating system as brown's servers, but now you have the liberty to install whatever
+  you want.
 
 ### Why?
 
-these features are useful because now you can work locally without worrying about syncing,
-but also bcause now you can install any compilers/state you need to work on those file
-(and target the same os/arch).
+total freedom.
 
-## OS X Installation
+1. work locally: you now have all the same tools and programs you're comfortable with
+   (running at native speed).
+2. target linux: if you want to compile your code, you can use the same great linux tools
+   on department machines.
 
-not gonna lie, this requires a whole lot of setup. some of these things components were
-already on my computer, so i can't guage how hard it is. i did, however, add a makefile
-that you can use to get everything provided you have [`brew`](http://brew.sh): `make
-install`.
+## Running/Interface
+
+`brownvm`'s interface is done entirely through `make`. here are the targets:
+
+- `start` - mounts the brown files and starts the vm
+- `stop` - unmounts the brown files and stops the vm
+- `install`- os x only: installs everything (if you have `brew`)
+- `init` - initializes the `.uname` file that tracks your username
+- `mount` - mounts the brown files
+- `umount` - unmounts the brown files
+- `start_vm` - starts vm
+- `stop_vm` - stops vm
+- `ssh` - ssh into the vm
+- `clean` - shuts down the vm, unmounts the brown files, and removes extra directories
+
+### Workflow
+
+![start](http://i.imgur.com/gTtx5fN.png)
+intantly mount your files.
+
+![emacs](http://i.imgur.com/fDAqgVL.png)
+work locally, see changes reflected on server.
+
+after `make install`, you run `make mount`: your home directory is now mounted in this one
+at `./home/USERNAME`. now, you work on your homeowrk using your favorite text editor while
+dragging and dropping stuff around. Once you've finished, you want to compile your code,
+so you run `make start_vm ssh`. you install your favorite `clang` tools with `sudo apt-get
+install -y llvm clang libblocksruntime-dev` then you compile your code and run it, but
+that was just for fun. now you have to do some web apps hw, but the department's version
+of nodejs doesn't really work. instead of running the code on the vm, however, you just
+run it locally since your computer already has the latest and greatest version. finally,
+you do an `ssh brown` and run the handin command for your class.
+
+## Installation
+
+first thing you have to do is:
+
+    git clone https://github.com/r-medina/brownvm.git && cd brownvm
+
+to get this code and move into that directory.
+
+### Dependancies
+
+- [osxfuse](https://osxfuse.github.io/) 
+- [sshfs](http://fuse.sourceforge.net/sshfs.html)
+- [virtualbox](https://www.virtualbox.org/)
+- [vagrant](https://www.vagrantup.com/)
 
 ### Requirements
 
-osxfuse: `brew cask install Caskroom/cask/osxfuse`
-sshfs: `brew install sshfs`
-virtualbox: `brew cask install Caskroom/cask/virtualbox`
-vagrant: `brew cask install Caskroom/cask/vagrant`
+you must be able to ssh into brown by doing `ssh brown`. in order to do so, add
 
-you must be able to ssh into brown by doing `ssh brown`. add
-
-    Host brown
-         Hostname ssh.cs.brown.edu
-         User USERNAME
+```ini
+Host brown
+     Hostname ssh.cs.brown.edu
+     User USERNAME
+```
 
 line to your `~/.ssh/config` file (on your local machine).
 
-### Running
+### OS X Installation
 
-run
+provided you have [`brew`](http://brew.sh), you can run:
 
-    ./bin/brown init USERNAME
+```sh
+make install
+```
 
-to do some setup. then
-
-    ./bin/brown up
-
-puts the files on your machine and boots the vm. ssh in with
-
-    ./bin/brown ssh
-
-finally, shutdown with
-
-    ./bin/brown shutdown
+to get all the dependancies (they're really big).

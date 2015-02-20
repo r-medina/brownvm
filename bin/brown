@@ -6,18 +6,21 @@ SCRIPT_HOME=$( cd "$( dirname "$0" )" && pwd )
 
 cd "${SCRIPT_HOME}"/..
 
+function get_uname {
+    [[ -a .uname ]] && uname=$(cat .uname)
+    echo ${uname}
+}
+
 function init {
-    [[ $# -eq 0 ]] && echo "usage: init USERNAME" && return 1;
+    [[ $# -eq 0 ]] && echo "usage: $0 init USERNAME" && return 1;
 
     uname=$1
     echo $1 > .uname
 }
 
 function mount_files {
-    [[ -a .uname ]] && uname=$(cat .uname)
-
-    [[ -z ${uname} ]] && echo "run init USERNAME" && return 1;
-
+    uname=$(get_uname)
+    [[ -z ${uname} ]] && echo "run: $0 init USERNAME" && return 1;
 
     mkdir -p home/${uname}
     sshfs ${uname}@brown:/gpfs/main/home/${uname} home/${uname}
@@ -26,36 +29,28 @@ function mount_files {
     sshfs ${uname}@brown:/gpfs/main/course course
 }
 
-function shutdown {
-    [[ -a .uname ]] && uname=$(cat .uname)
-
-    [[ -z ${uname} ]] && echo "run init USERNAME" && return 1;
+function umount_files {
+    uname=$(get_uname)
+    [[ -z ${uname} ]] && echo "run: $0 init USERNAME" && return 1;
 
     set +e
-    umount home/${uname}
-    rm -r home
-    umount course
-    rm -r course
-    vagrant halt
+    umount home/${uname} # && rm -r home
+    umount course # && rm -r course
     set -e
 }
 
 case "$1" in
-    ssh)
-        vagrant ssh
-        ;;
-    up)
-        mount_files ${@:2}
-        vagrant up
-        ;;
     init)
         init ${@:2}
         ;;
-    shutdown)
-        shutdown
+    mount)
+        mount_files ${@:2}
+        ;;
+    umount)
+        umount_files ${@:2}
         ;;
     *)
-        echo "usage: $0 {init|ssh|up|shutdown}"
+        echo "usage: $0 {}"
         RETVAL=1
         ;;
 esac
