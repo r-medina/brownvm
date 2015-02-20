@@ -15,16 +15,19 @@ these features are useful because now you can work locally without worrying abou
 but also bcause now you can install any compilers/state you need to work on those file
 (and target the same os/arch).
 
-## Installation
+## OS X Installation
 
 not gonna lie, this requires a whole lot of setup. some of these things components were
-already on my computer, so i can't guage how hard it is.
+already on my computer, so i can't guage how hard it is. i did, however, add a makefile
+that you can use to get everything provided you have [`brew`](http://brew.sh): `make
+install`.
 
 ### Requirements
 
-sshfs: ie `brew install sshfs` | `sudo apt-get install sshfs`
-
-vagrant: https://www.vagrantup.com/
+osxfuse: `brew cask install Caskroom/cask/osxfuse`
+sshfs: `brew install sshfs`
+virtualbox: `brew cask install Caskroom/cask/virtualbox`
+vagrant: `brew cask install Caskroom/cask/vagrant`
 
 you must be able to ssh into brown by doing `ssh brown`. add
 
