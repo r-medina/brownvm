@@ -11,14 +11,16 @@ $(sudo apt-get upgrade -y &>/dev/null; RETVAL=0)
     uname=$(cat /vagrant/.uname)
 [[ -z ${uname} ]] && \
     echo "run init USERNAME" && \
-    return 1;
+    RETVAL=1
 
 echo "symlinking course and ${uname}..."
 [[ ! -h /course ]] && \
     sudo ln -fs /vagrant/course /course
-[[ ! -h /home/${uname} ]] && \ 
+[[ ! -h /home/${uname} ]] && \
     sudo ln -fs /vagrant/home/${uname} /home/${uname}
 
 [[ -z $LOGINCD ]] && \
-    echo "[[ -d /home/${uname} ]] && cd /home/${uname}; export LOGINCD=1" >> /home/vagrant/.bashrc && \
+    echo "[[ -d /home/${uname} ]] && cd /home/${uname}" \
+         >> /home/vagrant/.bashrc && \
+    echo "export LOGINCD=1" >> .profile
     export LOGINCD=1
