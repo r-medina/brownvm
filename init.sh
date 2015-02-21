@@ -20,5 +20,5 @@ echo "symlinking course and ${uname}..."
     sudo ln -fs /vagrant/home/${uname} /home/${uname}
 
 [[ -z $LOGINCD ]] && \
-    echo "cd /home/${uname}; export LOGINCD=1" >> /home/vagrant/.bashrc && \
+    echo "[[ -d /home/${uname} ]] && cd /home/${uname}; export LOGINCD=1" >> /home/vagrant/.bashrc && \
     export LOGINCD=1
