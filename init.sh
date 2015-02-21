@@ -15,9 +15,9 @@ $(sudo apt-get upgrade -y &>/dev/null; RETVAL=0)
 
 echo "symlinking course and ${uname}..."
 [[ ! -h /course ]] && \
-    sudo ln -s /vagrant/course /course
+    sudo ln -fs /vagrant/course /course
 [[ ! -h /home/${uname} ]] && \ 
-    sudo ln -s /vagrant/home/${uname} /home/${uname}
+    sudo ln -fs /vagrant/home/${uname} /home/${uname}
 
 [[ -z $LOGINCD ]] && \
     echo "cd /home/${uname}; export LOGINCD=1" >> /home/vagrant/.bashrc && \
