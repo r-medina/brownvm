@@ -95,17 +95,15 @@ provision: start_vm
 ssh:
 	$(call my_info, ssh-ing into vm)
 	@$(VM) $@
+
+$(CASKDEPS):
+	$(call my_info, installing $@)
+	@$(PM) cask install Caskroom/cask/$@
 endif
 
 .uname:
 	$(call my_info, initializing)
 	@$(BIN) init $(shell read -p "brown login: "; echo $$REPLY)
-
-ifdef CASKDEPS
-$(CASKDEPS):
-	$(call my_info, installing $@)
-	@$(PM) cask install Caskroom/cask/$@
-endif
 
 $(ALLDEPS):
 	$(call my_info, installing $@)

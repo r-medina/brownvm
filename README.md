@@ -39,6 +39,7 @@ and work locally, see changes reflected on server:
 - `install`     - installs everything (you need `brew` if on os x)
 - `install_fs`  - installs everything required to run sshfs (you need `brew` if on os x)
 - `init`        - initializes the `.uname` file that tracks your username
+- `update`      - pulls down the latest version of this repo
 - `mount`       - mounts the brown files
 - `umount`      - unmounts the brown files
 - `start_vm`    - starts vm (not available on linux)
